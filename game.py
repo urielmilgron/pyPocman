@@ -24,10 +24,11 @@ block_img = pygame.transform.scale(block_img, (80, 80))
 player_pos = pygame.Rect(100, 100, 100, 100)
 velocity_y = 0
 gravity = 1
-jump_strength = -20
+jump_strength = -18
 is_jumping = False
 speed = 5
-
+previous_key = None
+jump_strength_count = 0
 # Piso virtual
 FLOOR_Y = 520
 
@@ -42,14 +43,36 @@ for i in range(20):  # generar 20 bloques
     blocks.append(pygame.Rect(x, y, 80, 80))
 
 def handle_input(keys):
-    global velocity_y, is_jumping
+    global velocity_y, is_jumping,jump_strength_count, previous_key
     if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+        previous_key = pygame.K_LEFT
         player_pos.x -= speed
     if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+        previous_key = pygame.K_RIGHT
         player_pos.x += speed
     if keys[pygame.K_SPACE] and not is_jumping:
-        velocity_y = jump_strength
-        is_jumping = True
+        if previous_key == pygame.K_SPACE or jump_strength_count == 0:
+            # User keeps holding the key - spacebar then accumulates jump strength
+            previous_key = pygame.K_SPACE
+            jump_strength_count += 1
+            print(jump_strength_count)
+
+    elif jump_strength_count != 0 :
+        print("Aca deberia saltar")
+        if jump_strength_count <= 5:
+            jump_strength_count = 0
+            print("Entro en menor que 5")
+        elif jump_strength_count > 5 and jump_strength_count <= 10:
+            jump_strength_count = 20
+            print("Entro en mayor que 5 y menor a 10")
+        else:
+            jump_strength_count = 30
+            print("Entro en mayor que 20")
+        # User release the holding key - spacebar
+        velocity_y = jump_strength - (jump_strength_count*0.2)
+        is_jumping = True   
+        previous_key = None
+        jump_strength_count = 0
 
 def apply_gravity():
     global velocity_y, is_jumping
