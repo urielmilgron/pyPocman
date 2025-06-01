@@ -2,13 +2,22 @@ import pygame
 import sys
 
 pygame.init()
+
+# Pantalla
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Juego con fondo loopeado")
 clock = pygame.time.Clock()
 
-# Carga imagen del jugador
-peron_image = pygame.image.load('assets\\pacman.png')
+
+
+
+# Cargar imágenes
+peron_image = pygame.image.load('assets/pacman.png').convert_alpha()
 player_img = pygame.transform.scale(peron_image, (100, 100))
+
+bg_img = pygame.image.load('assets/background.png').convert()
+bg_img = pygame.transform.scale(bg_img, (800, 600))  # ajustar según el tamaño real de tu imagen
 
 # Jugador
 player_pos = pygame.Rect(100, 100, 100, 100)
@@ -16,23 +25,25 @@ velocity_y = 0
 gravity = 1
 jump_strength = -20
 is_jumping = False
+speed = 5
 
-# Piso
-FLOOR_Y = 500
 
-# Offset de la cámara
-camera_offset_x = 0
+# Piso virtual (según donde esté el piso dibujado en tu imagen)
+FLOOR_Y = 520 # ajustalo si tu piso está más arriba o más abajo en el fondo
+
+# Cámara
+camera_x = 0
 
 def handle_input(keys):
     global velocity_y, is_jumping
     if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-        player_pos.x -= 5
+        player_pos.x -= speed
     if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-        player_pos.x += 5
+        player_pos.x += speed
     if keys[pygame.K_SPACE] and not is_jumping:
         velocity_y = jump_strength
         is_jumping = True
-
+    # Opcional: podés quitar las teclas arriba/abajo si no querés movimiento vertical
 def apply_gravity():
     global velocity_y, is_jumping
     velocity_y += gravity
@@ -45,8 +56,7 @@ def apply_gravity():
         is_jumping = False
 
 def main():
-    global camera_offset_x
-
+    global camera_x
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -57,27 +67,22 @@ def main():
         handle_input(keys)
         apply_gravity()
 
-        # Actualiza la cámara para que siga al jugador en X
-        camera_offset_x = player_pos.x - WIDTH // 2 + player_pos.width // 2
+        # Mantener al jugador sobre el piso
 
-        # Fondo
-        screen.fill((30, 30, 30))
 
-        # Dibuja el piso (usando offset de cámara)
-        pygame.draw.line(
-            screen,
-            (0, 255, 0),
-            (0 - camera_offset_x, FLOOR_Y),
-            (WIDTH * 2 - camera_offset_x, FLOOR_Y),
-            4
-        )
+        # Actualizar cámara
+        camera_x = player_pos.centerx - WIDTH // 2
 
-        # Dibuja al jugador siempre en el centro horizontal
-        player_screen_x = WIDTH // 2 - player_pos.width // 2
-        screen.blit(player_img, (player_screen_x, player_pos.y))
+        # Dibujar fondo repetido
+        for i in range(-1, 1000):
+            screen.blit(bg_img, ((i * bg_img.get_width()) - camera_x, 0))
+
+        # Dibujar jugador
+        screen.blit(player_img, (player_pos.x - camera_x, player_pos.y))
 
         pygame.display.flip()
         clock.tick(60)
+        screen.fill((0, 0, 0))
 
 if __name__ == "__main__":
     main()
