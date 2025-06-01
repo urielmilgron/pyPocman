@@ -25,9 +25,9 @@ camera_offset_x = 0
 
 def handle_input(keys):
     global velocity_y, is_jumping
-    if keys[pygame.K_LEFT]:
+    if keys[pygame.K_LEFT] or keys[pygame.K_a]:
         player_pos.x -= 5
-    if keys[pygame.K_RIGHT]:
+    if keys[pygame.K_RIGHT] or keys[pygame.K_d]:
         player_pos.x += 5
     if keys[pygame.K_SPACE] and not is_jumping:
         velocity_y = jump_strength
