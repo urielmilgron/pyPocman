@@ -48,11 +48,7 @@ ehthumbs_vista.db
 *.o
 *.so
 
-# Archivos de imagen y video
-*.jpeg
-*.gif
-*.png
-*.webp
+# Archivos de video
 *.mp4
 *.avi
 *.mov
